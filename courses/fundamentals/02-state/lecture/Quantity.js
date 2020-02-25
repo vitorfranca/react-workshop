@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React from 'react'
+import ReactDOM from 'react-dom'
 import { FaMinusCircle, FaPlusCircle } from 'react-icons/fa'
 import 'YesterTech/Quantity.scss'
 
@@ -33,3 +34,30 @@ export default function Quantity() {
     </div>
   )
 }
+
+/**
+ * How hooks works in the background
+ */
+const states = []
+let callCount = -1
+
+function useState(initialValue) {
+  const id = ++callCount
+  if (id < states.length) return states[id]
+
+  function setValue(value) {
+    states[id][0] = value
+    rerender()
+  }
+
+  const tuple = [initialValue, setValue]
+  states.push(tuple)
+
+  return tuple
+}
+
+function rerender() {
+  callCount = -1
+  ReactDOM.render(<Quantity />, document.getElementById('root'))
+}
+rerender()
