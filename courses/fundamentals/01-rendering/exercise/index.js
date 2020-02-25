@@ -1,9 +1,8 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import { FaRegStar, FaStar, FaStarHalfAlt } from 'react-icons/fa'
-import Heading from 'YesterTech/Heading'
 import 'YesterTech/StarRatings.scss'
 import 'YesterTech/styles/center-lesson.scss'
+import Product from './Product'
 
 const products = [
   { id: 1, name: 'Mario Kart', rating: 5, brand: 'Nintendo', condition: 'new' },
@@ -12,7 +11,11 @@ const products = [
 ]
 
 function BrowseProducts() {
-  return <div>{/* Exercise code goes here! */}</div>
+  return <div>
+    {products.map(({ id, ...product }) =>
+      <Product key={id} {...product} />
+    )}
+  </div>
 }
 
 ReactDOM.render(<BrowseProducts />, document.getElementById('root'))
