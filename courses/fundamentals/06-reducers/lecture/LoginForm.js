@@ -1,4 +1,4 @@
-import React, { useState, useReducer } from 'react'
+import React, { useReducer } from 'react'
 import { FaSignInAlt, FaExclamationCircle } from 'react-icons/fa'
 
 import Heading from 'YesterTech/Heading'
@@ -6,27 +6,79 @@ import Notice from 'YesterTech/Notice'
 import Centered from 'YesterTech/Centered'
 import api from 'YesterTech/api'
 
+function useReducerWithMiddleware(
+  middleware,
+  reducer,
+  initialState
+) {
+  return useReducer(middleware ? middleware(reducer) : reducer, initialState)
+}
+
+function logMiddleware(reducer) {
+  return (state, action) => {
+    const newState = reducer(state, action)
+    console.log('================================================')
+    console.log('PREVIOUS STATE:\n', state)
+    console.log('ACTION:\n', action)
+    console.log('NEW STATE:\n', newState)
+    console.log('================================================')
+    return newState
+  }
+}
+
 function LoginForm({ onAuthenticated }) {
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState(null)
-  const [loading, setLoading] = useState(false)
-  const [showPassword, setShowPassword] = useState(false)
+  const [state, dispatch] = useReducerWithMiddleware(logMiddleware, (state, action) => {
+    switch (action.type) {
+      case 'LOGGING_IN':
+        return { ...state, loading: true }
+      case 'LOGIN_ERROR':
+        return { ...state, loading: false, error: action.error }
+      case 'LOGIN_SUCCESS':
+        return { ...state, loading: false, ...action.user, error: null }
+      case 'CHANGE_FIELD':
+        return { ...state, [action.name]: action.value }
+      default:
+        return state
+    }
+  }, {
+    username: '',
+    password: '',
+    error: null,
+    loading: null,
+    showPassword: false,
+  })
+
+  const {
+    username,
+    password,
+    error,
+    loading,
+    showPassword,
+  } = state
 
   function handleLogin(event) {
     event.preventDefault()
-    setLoading(true)
+
+    dispatch({ type: 'LOGGING_IN' })
+
     api.auth
       .login(username, password)
       .then(user => {
         if (typeof onAuthenticated === 'function') {
-          onAuthenticated(user)
+          dispatch({ type: 'LOGIN_SUCCESS', ...user })
         }
       })
       .catch(error => {
-        setError(error)
-        setLoading(false)
+        dispatch({ type: 'LOGIN_ERROR', error })
       })
+  }
+
+  function changeField(e) {
+    dispatch({
+      type: 'CHANGE_FIELD',
+      name: e.target.name,
+      value: e.target.type !== 'checkbox' ? e.target.value : e.target.checked,
+    })
   }
 
   return (
@@ -43,7 +95,8 @@ function LoginForm({ onAuthenticated }) {
         <div className="form-field">
           <input
             aria-label="Username"
-            onChange={e => setUsername(e.target.value)}
+            name="username"
+            onChange={changeField}
             type="text"
             placeholder="Username"
           />
@@ -51,14 +104,16 @@ function LoginForm({ onAuthenticated }) {
         <div className="form-field">
           <input
             aria-label="Password"
-            onChange={e => setPassword(e.target.value)}
+            name="password"
+            onChange={changeField}
             type={showPassword ? 'text' : 'password'}
             placeholder="Password"
           />
           <label>
             <input
-              onChange={() => setShowPassword(!showPassword)}
+              onChange={changeField}
               defaultChecked={showPassword}
+              name="showPassword"
               className="passwordCheckbox"
               type="checkbox"
             />{' '}
@@ -73,8 +128,8 @@ function LoginForm({ onAuthenticated }) {
                 <FaSignInAlt /> <span>Login</span>
               </>
             ) : (
-              <span>Loading ...</span>
-            )}
+                <span>Loading ...</span>
+              )}
           </button>
         </footer>
       </form>

@@ -1,4 +1,4 @@
-import React, { useState, useReducer } from 'react'
+import React, { useState } from 'react'
 import ReactDOM from 'react-dom'
 import LoginForm from './LoginForm'
 import 'YesterTech/styles/global-styles.scss'
@@ -12,8 +12,8 @@ function App() {
       {user ? (
         <div className="align-center">You are logged in</div>
       ) : (
-        <LoginForm onAuthenticated={setUser} />
-      )}
+          <LoginForm onAuthenticated={setUser} />
+        )}
     </div>
   )
 }
