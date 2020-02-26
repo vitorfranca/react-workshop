@@ -24,6 +24,7 @@ export function AuthStateProvider({ children }) {
   const value = {
     ...state,
     dispatch: useCallback(dispatch, []),
+    authenticate: user => dispatch({ type: 'LOGIN', user }),
   }
 
   return <AuthStateContext.Provider value={value} children={children} />

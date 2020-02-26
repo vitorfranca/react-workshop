@@ -17,19 +17,59 @@ import Checkout from 'YesterTech/Checkout'
 import { useShoppingCart } from 'YesterTech/ShoppingCartState'
 
 export default function PrimaryLayout() {
-  const { authenticated } = useAuthState()
+  const { authenticated, authenticate } = useAuthState()
   const { cart } = useShoppingCart()
 
   return (
     <div className="primary-layout">
       <div>
         <PrimaryHeader />
-        <ProductSubNav />
-        <main className="primary-content">
-          <Home />
-        </main>
+
+        <Switch>
+          <Route path="/" exact>
+            <main className="primary-content">
+              <Home />
+            </main>
+          </Route>
+          <Route path="/signup">
+            <main className="primary-content">
+              <SignupForm />
+            </main>
+          </Route>
+          <Route path="/login">
+            <main className="primary-content">
+              {authenticated
+                ? <Redirect to="/account" />
+                : <LoginForm onAuthenticated={authenticate}
+                />}
+            </main>
+          </Route>
+          <Route path="/products" exact>
+            <ProductSubNav />
+            <main className="primary-content">
+              <ProductsLayout />
+            </main>
+          </Route>
+          {cart.length &&
+            <Route path="/checkout">
+              <main className="primary-content">
+                <Checkout />
+              </main>
+            </Route>
+          }
+          {authenticated &&
+            <Route path="/account">
+              <main className="primary-content">
+                <Account />
+              </main>
+            </Route>
+          }
+
+          <Redirect to="/" />
+        </Switch>
+
         <PrimaryFooter />
       </div>
-    </div>
+    </div >
   )
 }
