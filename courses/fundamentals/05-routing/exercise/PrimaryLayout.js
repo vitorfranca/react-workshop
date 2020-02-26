@@ -25,48 +25,41 @@ export default function PrimaryLayout() {
       <div>
         <PrimaryHeader />
 
-        <Switch>
-          <Route path="/" exact>
-            <main className="primary-content">
+        <Route path="/products">
+          <ProductSubNav />
+        </Route>
+
+        <main className="primary-content">
+          <Switch>
+            <Route path="/" exact>
               <Home />
-            </main>
-          </Route>
-          <Route path="/signup">
-            <main className="primary-content">
+            </Route>
+            <Route path="/signup">
               <SignupForm />
-            </main>
-          </Route>
-          <Route path="/login">
-            <main className="primary-content">
+            </Route>
+            <Route path="/login">
               {authenticated
                 ? <Redirect to="/account" />
                 : <LoginForm onAuthenticated={authenticate}
                 />}
-            </main>
-          </Route>
-          <Route path="/products" exact>
-            <ProductSubNav />
-            <main className="primary-content">
+            </Route>
+            <Route path="/products" exact>
               <ProductsLayout />
-            </main>
-          </Route>
-          {cart.length &&
-            <Route path="/checkout">
-              <main className="primary-content">
+            </Route>
+            {cart.length &&
+              <Route path="/checkout">
                 <Checkout />
-              </main>
-            </Route>
-          }
-          {authenticated &&
-            <Route path="/account">
-              <main className="primary-content">
+              </Route>
+            }
+            {authenticated &&
+              <Route path="/account">
                 <Account />
-              </main>
-            </Route>
-          }
+              </Route>
+            }
 
-          <Redirect to="/" />
-        </Switch>
+            <Redirect to="/" />
+          </Switch>
+        </main>
 
         <PrimaryFooter />
       </div>
